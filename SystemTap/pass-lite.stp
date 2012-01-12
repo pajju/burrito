@@ -1,0 +1,275 @@
+# A super-simple version of PASS, implemented using SystemTap
+# by Philip Guo, 2011-10-31
+
+# Tested on Fedora 14 with this kernel version: 2.6.35.14-103.fc14.x86_64
+
+# Use this command to create a series of 10MB output files:
+#   stap -o /var/log/BurritoBook/stap.out -S 10 pass-lite.stp
+
+# Use a double pipe '||' delimiter for fields since that pattern doesn't
+# seem to appear in filenames
+
+# For reference, refer to syscall stubs in:
+#   /usr/share/systemtap/tapset/syscalls.stp
+#   /usr/share/systemtap/tapset/syscalls2.stp
+
+
+function print_header() {
+  # the timestamp is measured in milliseconds since the epoch
+  printf("%d||%d||%d||%d||%s||", gettimeofday_ms(), pid(), ppid(), uid(), execname())
+}
+
+
+# associative arrays, indexed by the pair: [pid(), fd]
+global reads, writes
+
+
+probe syscall.open.return {
+  filename = user_string($filename)
+
+  # only trace files that were actually successfully opened!
+  if ($return >= 0) {
+    fd = $return
+
+    print_header()
+
+    rw_flags = $flags & 0x3
+
+    if (rw_flags == 0x2) { # O_RDWR
+      printf("OPEN_READWRITE||%s||%d\n", filename, fd)
+    }
+    else if (rw_flags == 0x1) { # O_WRONLY
+      printf("OPEN_WRITE||%s||%d\n", filename, fd)
+    }
+    else { # O_RDONLY
+      printf("OPEN_READ||%s||%d\n", filename, fd)
+    }
+
+    # delete these entries since this new file has never been read from or written to ...
+    delete reads[pid(), fd]
+    delete writes[pid(), fd]
+  }
+}
+
+
+# Tracing this function allows you to get ABSOLUTE PATHS to the opened files
+# Code taken from: http://blog.gmane.org/gmane.linux.systemtap/month=20111001
+#
+# Note that we still need to trace syscall.open.return since
+# do_filp_open() doesn't give us the file descriptor number, which we
+# might need to stash away for later use ... but it does give the
+# absolute path, though!
+probe kernel.function("do_filp_open").return {
+  # $return is a FILE* struct
+
+  # only log entries for successfully-opened files:
+  if (!errno_p($return)) {
+    filename = task_dentry_path(task_current(),
+                                $return->f_path->dentry,
+                                $return->f_path->mnt)
+    print_header()
+    printf("OPEN_ABSPATH||%s\n", filename)
+  }
+}
+
+
+# Margo wanted me to track all reads and writes since many programs
+# actually open files in 'rw' mode
+
+probe syscall.read.return {
+  if ($return > 0) {
+    if (!reads[pid(), $fd]) {
+      print_header()
+      printf("READ||%d\n", $fd)
+      reads[pid(), $fd] = 1
+    }
+  }
+}
+
+probe syscall.write.return {
+  if ($return > 0) {
+    if (!writes[pid(), $fd]) {
+      print_header()
+      printf("WRITE||%d\n", $fd)
+      writes[pid(), $fd] = 1
+    }
+  }
+}
+
+
+# issue a MMAP_READ or MMAP_WRITE event based on whether the 'prot'
+# argument is PROT_READ or PROT_WRITE
+probe syscall.mmap2.return {
+
+  # Code borrowed from /usr/share/systemtap/tapset/syscalls.stp
+
+	# Although the kernel gets an unsigned long fd, on the
+	# user-side it is a signed int.  Fix this.
+	fd = __int32($fd)
+
+  # ignore negative fd's ...
+  if ((__int32($return) != -1) && (fd >= 0)) {
+    print_header()
+
+    rw_prot = $prot & 0x3
+
+    if (rw_prot == 0x1) {      # PROT_READ
+      printf("MMAP_READ||%d\n", fd)
+    }
+    else if (rw_prot == 0x2) { # PROT_WRITE
+      printf("MMAP_WRITE||%d\n", fd)
+    }
+    else {
+      printf("MMAP_READWRITE||%d\n", fd)
+    }
+  }
+}
+
+
+probe syscall.close.return {
+  if ($return == 0) {
+    print_header()
+    printf("CLOSE||%d\n", $fd)
+
+    # reset these entries to prepare for another file to be opened with
+    # the same fd ...
+    delete reads[pid(), $fd]
+    delete writes[pid(), $fd]
+  }
+}
+
+probe syscall.pipe.return {
+  print_header()
+  printf("PIPE||%d||%d\n", pipe0, pipe1)
+}
+
+probe syscall.dup.return {
+  if ($return >= 0) {
+    print_header()
+    printf("DUP||%d||%d\n", $fildes, $return)
+  }
+}
+
+probe syscall.dup2.return {
+  if ($return >= 0) {
+    print_header()
+    printf("DUP2||%d||%d||%d\n", $oldfd, $newfd, $return)
+
+    # dup2 might close newfd ...
+    delete reads[pid(), $newfd]
+    delete writes[pid(), $newfd]
+  }
+}
+
+probe syscall.fork.return {
+  print_header()
+  printf("FORK||%d\n", $return)
+}
+
+probe syscall.execve {
+  # kick-ass code to get the pwd at the time of the execve call :)
+  tc = task_current()
+  pwd_dentry = @cast(tc, "task_struct")->fs->pwd->dentry
+  pwd_mnt = @cast(tc, "task_struct")->fs->pwd->mnt
+  pwd_path = task_dentry_path(tc, pwd_dentry, pwd_mnt)
+
+  print_header()
+  # print 'args' last since it might contain '||' in it ...
+  printf("EXECVE||%s||%s||%s\n", pwd_path, filename, args)
+}
+
+probe syscall.execve.return {
+  print_header()
+  printf("EXECVE_RETURN||%d\n", $return)
+}
+
+# only use this within syscall.exit
+# (I hope there are no race conditions!)
+global tmp_read_fds, tmp_write_fds
+
+
+# Exits an entire process (including all enclosed threads)
+#
+# exit_group means that the whole process has exited; a regular exit
+# syscall might mean that only a single thread within the process has
+# exited, so other threads might still be running and require provenance
+# collection (FYI the glibc exit() wrapper function makes an exit_group
+# syscall)
+probe syscall.exit_group {
+  print_header()
+  printf("EXIT_GROUP||%d\n", status)
+
+  # delete all entries corresponding to [pid(), _] in reads and writes
+  # arrays, but since the SystemTap language is so restricted, we must
+  # first find all the fd's that have been read from or written to by
+  # this thread ...
+
+  foreach([p,fd] in reads) {
+    if (p == pid()) {
+      tmp_read_fds[fd] = 1
+    }
+  }
+  foreach([p,fd] in writes) {
+    if (p == pid()) {
+      tmp_write_fds[fd] = 1
+    }
+  }
+
+  # ... and then delete them in a separate loop:
+  foreach([read_fd] in tmp_read_fds) {
+    delete reads[pid(), read_fd]
+    #printf("  DELETE reads[%d, %d]\n", pid(), read_fd)
+  }
+  foreach([write_fd] in tmp_write_fds) {
+    delete writes[pid(),  write_fd]
+    #printf("  DELETE writes[%d, %d]\n", pid(), write_fd)
+  }
+
+  # clear their contents so that these values can be used by the NEXT
+  # call to syscall.exit
+  delete tmp_read_fds
+  delete tmp_write_fds
+}
+
+
+# intercept at the BEGINNING of the call since weird things happen when
+# you intercept at the 'return' ($old_dentry and $new_dentry seem to
+# have the same value or something weird like that)
+probe kernel.function("vfs_rename") {
+  # code adapted from /usr/share/systemtap/tapset/dentry.stp
+  tc = task_current()
+
+  # pwd_mnt seems to work better than root_mnt, but it still sometimes
+  # gives erroneous absolute paths for old_filename and new_filename
+  #root = & @cast(tc, "task_struct")->fs->root
+  #root_mnt = @cast(root, "path")->mnt
+  pwd_mnt = @cast(tc, "task_struct")->fs->pwd->mnt
+
+  # $old_dentry and $new_dentry are FILE* structs
+  old_filename = task_dentry_path(tc, $old_dentry, pwd_mnt)
+  new_filename = task_dentry_path(tc, $new_dentry, pwd_mnt)
+
+  print_header()
+  printf("RENAME||%s||%s\n", old_filename, new_filename)
+}
+
+
+# can also add link, unlink, symlink, etc. if we care about those calls too
+
+
+
+# Print a periodic report as a sanity check:
+/*
+probe timer.s(5) {
+  printf("------\nSummary:\n\n")
+  foreach([p,fd] in reads) {
+    printf("%6d READ  %3d (%d)\n", p, fd, reads[p, fd])
+  }
+  printf("\n")
+  foreach([p,fd] in writes) {
+    printf("%6d WRITE %3d (%d)\n", p, fd, writes[p, fd])
+  }
+  printf("\n")
+}
+*/
+

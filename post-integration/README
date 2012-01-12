@@ -1,0 +1,5 @@
+Post-integration stuff
+
+This sub-directory contains programs that all read the 'burrito_db' MongoDB,
+(which contains the cleaned and integrated data streams)
+

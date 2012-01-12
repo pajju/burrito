@@ -1,0 +1,348 @@
+Installing Fedora 14 VirtualBox on starflow with the tools required for
+this project
+
+2011-11-08
+
+
+Use ISO from:
+  http://mirror.seas.harvard.edu/fedora/linux/releases/14/Live/x86_64/Fedora-14-x86_64-Live-Desktop.iso
+
+Set up a VirtualBox VM with 2GB of RAM, 100GB hard drive, VDI file format
+(4.1.4 r74291)
+
+- root password: passwd
+- user: researcher
+  password: passwd
+
+
+=== Partitioning ===
+
+If you have the ability to create custom partitions at installation
+time, try to create a big LVM partition, which we will later carve up
+into a NILFS partition.
+
+Also, create SEPARATE partitions for '/' and '/home', so that we can
+later unmount the '/home' partition and replace it with a NILFS home
+partition.  If you just have one huge '/' partition, then Linux won't
+let you mount a NILFS partition as '/home', since it will say that
+'/home' is already mounted.
+
+
+=== Initial setup ===
+
+Do 'su' and then 'visudo' to add user 'researcher' to sudoers
+
+Update all packages:
+
+  sudo yum update
+
+(this could take a LONG time)
+
+
+=== Install pyatspi ===
+
+Enable assistive technologies so that pyatspi works:
+
+  System -> Preferences -> Assistive Technologies
+  Check the "Enable assistive technologies" checkbox
+  Log out and log back in
+
+Install pyatspi:
+
+  sudo yum install pyatspi
+
+and test to see whether it works by running the following code:
+
+  import pyatspi
+  reg = pyatspi.Registry()
+  desktop = reg.getDesktop(0)
+  for app in desktop:
+    print app
+
+
+=== Install SystemTap ===
+
+  sudo yum install systemtap systemtap-runtime
+
+Install kernel debug symbols in order to get kernel to work with SystemTap:
+
+  use "uname -r" to find the exact kernel version we're using:
+    2.6.35.6-45.fc14.x86_64
+  (on 64-bit Fedora Core 14)
+
+  sudo yum install kernel-devel-2.6.35.6-45.fc14.x86_64
+  sudo debuginfo-install kernel-2.6.35.6-45.fc14.x86_64
+
+  # interesting ... it seems like SystemTap needs this package to work
+  # properly, maybe because the kernel has been updated or something?
+  sudo debuginfo-install kernel-2.6.35.14-103.fc14.x86_64
+
+  sudo usermod -a -G stapdev researcher
+  sudo usermod -a -G stapusr researcher
+  (add user 'researcher' to groups 'stapdev' and 'stapusr' so that I can run SystemTap as non-root)
+
+  Log out and then log back in
+
+
+Test to see if SystemTap works by running this command:
+
+  stap -e 'probe syscall.open { log(execname() . ": " . filename) }'
+
+
+=== Disable SELinux ===
+
+Disable stupid pesky SELinux permanently by editing '/etc/selinux/config' and setting:
+
+  SELINUX=disabled
+
+and restart the machine
+
+
+=== Now try to create a NILFS partition and mount it as /home ===
+
+[ Super-helpful webpage about LVM: http://www.markus-gattol.name/ws/lvm.html ]
+
+
+First install nilfs tools:
+
+  sudo yum install nilfs-utils
+
+
+Insert the Fedora 14 LiveCD into the VirtualBox virtual CD drive and
+then reboot to start a "Live System User" session from the CD-ROM.
+
+  - Using the LiveCD session makes it possible to run commands to muck
+    with filesystem-related stuff since the filesystems aren't mounted
+
+Do 'su' in the terminal to change to the root user (no password needed!)
+
+Resize the default /home LVM partition to 1GB to make room for a new
+NILFS partition:
+
+  e2fsck -f /dev/vg_fedora14virtualbox/lv_home
+  resize2fs /dev/vg_fedora14virtualbox/lv_home 1G
+  lvreduce -L 1G /dev/vg_fedora14virtualbox/lv_home
+
+Now reboot without the LiveCD and log in as 'researcher'
+
+Do 'su' to switch to root
+
+Create a 44GB partition to format as NILFS:
+
+  lvcreate -v -n lv_nilfs_home -L 44G vg_fedora14virtualbox
+  mkfs.nilfs2 /dev/vg_fedora14virtualbox/lv_nilfs_home
+
+and mount in /nilfs-home
+
+  mkdir /nilfs-home
+
+Add this line to /etc/fstab ...
+
+  /dev/mapper/vg_fedora14virtualbox-lv_nilfs_home /nilfs-home nilfs2 defaults        0 0
+
+
+Restart the machine, and you should see /nilfs-home mounted.
+
+Now copy the contents of /home/researcher into /nilfs-home/researcher
+
+  su
+  cd /nilfs-home
+  mkdir researcher
+  chown researcher researcher
+  chgrp researcher researcher
+
+(switch back to 'researcher' user)
+  cd /nilfs-home/
+  rsync -avh /home/researcher .
+
+
+Now edit /etc/fstab to gypsy-switch nilfs_home LV 'partition' into /home
+(remember the 'nogc' option to disable the garbage collector):
+
+  #/dev/mapper/vg_fedora14virtualbox-lv_home /home                   ext4 defaults        1 2
+  /dev/mapper/vg_fedora14virtualbox-lv_nilfs_home /home nilfs2    rw,nogc        0 0
+
+
+Once you restart your machine, the NILFS partition should be used as /home
+
+---
+Alternatively, if you created an LVM partition at system installation
+time, run:
+  sudo pvcreate /dev/sda2
+ 
+(or whatever partition you assigned to LVM) to create an LVM "physical
+volume".
+
+Then run:
+  sudo vgcreate my_lvm_group /dev/sda2
+ 
+to create a "volume group".  and NOW you're ready to finally create a
+NILFS "logical volume".  e.g.,:
+
+  sudo lvcreate -v -n lv_nilfs_home -L 44G my_lvm_group
+  sudo mkfs.nilfs2 /dev/my_lvm_group/lv_nilfs_home
+
+then follow the directions above.
+
+
+=== Create BurritoBook log directory ===
+
+Create a /var/log/BurritoBook directory to store all of the log output.
+Make sure that the user 'researcher' has write permissions for that
+directory, so that we don't have to be root to write into it.
+
+Note that this directory is *not* under NILFS, so that our log files
+don't get versioned.  This is a GOOD thing, since the log files already
+have timestamps, so they don't need additional versioning.
+
+
+=== Install xpad sticky notes app ===
+
+sudo yum install xpad
+
+Now add 'xpad' to your GNOME Startup Applications panel (System ->
+Preferences -> Startup Applications), so that it always runs on
+start-up.
+
+
+=== Install MongoDB ===
+
+We will use MongoDB as our master database.
+
+1.) Download 64-bit MongoDB binary from here:
+- http://www.mongodb.org/downloads
+- http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.0.1.tgz
+
+2.) Just unzip it, and all the binaries are self-contained.  Add the
+mongodb bin/ directory to your $PATH, and you're all set!
+
+3.) Start the MongoDB database process and tell it to store its data in
+/var/log/BurritoBook/MongoDB.
+
+mkdir /var/log/BurritoBook/MongoDB # make sure user 'researcher' has write permissions
+
+mongod --fork --quiet --dbpath /var/log/BurritoBook/MongoDB --logpath /var/log/BurritoBook/MongoDB/mongodb.log --logappend
+
+Add this command to the GNOME Startup Applications panel so that MongoDB
+always starts when you log in.
+
+- See: http://www.mongodb.org/display/DOCS/Starting+and+Stopping+Mongo
+- The --quiet option is important, or else the mongodb.log file grows HUGE!
+
+
+The main MongoDB limitation is that a 32-bit build can only work with
+4GB database files since it uses memory-mapped files.  (64-bit builds
+work fine with huge files, though.)
+
+
+4.) Install Python bindings for MongoDB: http://api.mongodb.org/python/current/
+
+First you need to install the pip package manager for Python:
+  sudo yum install python-pip
+
+Now install PyMongo using pip:
+  sudo pip-python install pymongo
+
+However, we now see a warning that the native extension modules couldn't
+be installed, so we gotta install Python headers:
+  sudo yum install python-devel
+
+Now run this command to re-install PyMongo, and you should see a bunch
+of calls to gcc to compile the native extension modules:
+  sudo pip-python install --upgrade pymongo
+
+So really, if you do it right, the three necessary steps are:
+
+  sudo yum install python-pip
+  sudo yum install python-devel
+  sudo pip-python install pymongo
+
+
+=== mount nilfs2 without needing to enter a password ===
+
+Create a few mount points in /tmp, e.g.,:
+
+  /tmp/nilfs-snapshot-1
+  /tmp/nilfs-snapshot-2
+
+Make sure to mount snapshots in /tmp since that's NOT in nilfs ...
+otherwise a ton of new versions might be created due to the snapshot!
+
+
+Now add these lines to /etc/sudoers by editing it using "sudo visudo":
+
+  researcher      ALL=(ALL)       ALL
+  researcher      ALL=NOPASSWD: /bin/mount
+  researcher      ALL=NOPASSWD: /bin/umount
+  researcher      ALL=NOPASSWD: /sbin/mount.nilfs2
+  researcher      ALL=NOPASSWD: /sbin/umount.nilfs2
+  researcher      ALL=NOPASSWD: /usr/bin/chcp
+  researcher      ALL=NOPASSWD: /usr/bin/mkcp
+  researcher      ALL=NOPASSWD: /usr/bin/rmcp
+
+The first line gives user 'researcher' full sudo access.  All subsequent
+lines say that 'researcher' can run those commands as 'sudo' WITHOUT
+TYPING A PASSWORD!  Note that those commands still must be run as
+'sudo', but no password is required :)
+
+[TODO: do we need to also add NOPASSWD for regular 'mount'/'umount'?
+double-check this]
+
+
+Installed the 'meld' graphical diff tool to facilitate visualizing file
+version diffs:
+
+  sudo yum install meld
+
+
+=== Installing drivers for the Wacom Bamboo tablet (FAILED!) ===
+
+If I click on "Settings" for the Fedora 14 VM in VirtualBox, the
+following message pops up:
+
+  Failed to access the USB subsystem.  VirtualBox is not currently
+  allowed to access USB devices. You can change this by adding your user
+  to the 'vboxusers' group. Please see the user manual for a more
+  detailed explanation.
+
+So on my REAL PHYSICAL machine, run:
+
+sudo usermod -a -G vboxusers pgbovine
+
+then restart the machine.  Now VirtualBox should be able to access my
+USB devices.
+
+In VirtualBox, if you select "Devices -> USB Devices -> Wacom ...", then
+running 'lsusb' will show the Wacom device as being connected!
+
+
+However, I have FAILED FAILED FAILED to get my Wacom Bamboo tablet
+working in Fedora 14.  The instructions above are useful for getting
+a VM within VirtualBox to recognize the Wacom device, but I can't
+actually get it working as a tablet :( :( :(
+
+I'm just gonna "fake" the Wacom tablet using a mouse for now.
+
+(Ubuntu 11.10 apparently has support for Wacom tablets, but I still
+can't get it to work within the VM.)
+
+
+=== Other installed applications ===
+
+Install gnome-paint, a simple bare-bones app for sketching doodles:
+
+  sudo yum install gnome-paint
+
+
+Tasque, a simple task-manager app:
+
+  sudo yum install tasque
+
+
+GNOME Audio Recorder Applet (for recording audio):
+
+  sudo yum install rec-applet
+
+Then right click on the top GNOME panel, select "Add to Panel ...", then
+Audio Recorder Applet
+

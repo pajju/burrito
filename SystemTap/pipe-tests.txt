@@ -1,0 +1,6 @@
+Pipe and redirection tests:
+
+sort a.txt
+sort a.txt > b.txt
+sort a.txt | grep 3 > b.txt
+sort a.txt | grep 3 | uniq > b.txt

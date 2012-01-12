@@ -1,0 +1,132 @@
+Notes and TODOs from Xpad sticky notes (extracted on 2012-01-12)
+
+
+What am I doing now?
+---
+
+Find some big icons for the respective events
+
+python print_html_summary.py researcher-1324910816633
+
+
+This session contains my journey with building an SAT scores plot in matplotlib:
+python source_file_prov_viewer.py ~/Desktop/philip-sat-scores/plot_scores.py researcher-1324910816633
+
+
+python output_file_prov_viewer.py ~/Desktop/philip-sat-scores/sat-scores.png researcher-1324910816633
+
+
+Some sessions with semi-meaty development activity:
+
+python source_file_provenance_demo.py ~/BurritoBook/post-integration/burrito-feed/output_file_prov_viewer_demo.py researcher-1324587094399
+
+python source_file_provenance_demo.py ~/BurritoBook/post-integration/burrito-feed/burrito_feed.py researcher-1323442025122
+
+python source_file_provenance_demo.py ~/BurritoBook/post-integration/burrito-feed/burrito_feed.py researcher-1324083495675
+
+python source_file_provenance_demo.py ~/BurritoBook/post-integration/burrito-feed/burrito_feed.py researcher-1324650250740
+
+somewhat juicy:
+python source_file_provenance_demo.py ~/BurritoBook/post-integration/burrito-feed/output_file_prov_viewer_demo.py researcher-1324510519594
+
+---
+This is the session where Elaine and I iterated on her frontline3.py script: researcher-1324505931752
+
+python output_file_prov_viewer.py ~/Desktop/elaine-frontline/ivins-extra-hours-2001.png researcher-1324505931752
+
+---
+
+http://vim.wikia.com/wiki/Accessing_the_system_clipboard
+
+http://vim.wikia.com/wiki/In_line_copy_and_paste_to_system_clipboard
+
+Wow, compiling CDE generates a CLUSTERFUCK of file-related events :0
+- the ./configure step REALLY kills us!!!
+
+
+Use some graph viewer (e.g., evince or interactive graphviz for linux?) to view provenance graphs
+- e.g.,: http://networkx.lanl.gov/pygraphviz/
+
+
+We might be able to use the Layout Container to implement an "infinitely"-scrollable display for BurritoFeed ...
+http://www.pygtk.org/pygtk2tutorial/sec-Layout.html
+
+Possibly useful autocomplete widget ...
+http://www.pygtk.org/pygtk2tutorial/sec-EntryCompletion.html
+
+
+sudo mount -t nilfs2 -n -o ro,cp=60000 /dev/dm-3 /tmp/nilfs-snapshot-1
+
+To list a particular checkpoint: lscp -i 120101 -n 1
+
+
+
+TODOs:
+---
+
+MOVE THESE NOTES OFF OF THIS VM TO ARCHIVE!!!
+
+To triage incremental_integrator.py crashes, look in error logs ...
+
+researcher@fedora14-virtualbox /var/log/BurritoBook
+$ find . -name 'integrator.err' | xargs cat 
+
+
+Some copy/paste event handling assertion errors related to processing clipboard log ...
+
+python incremental_integrator.py /var/log/BurritoBook/researcher-1323442025122 -s researcher-1323442025122 -o
+
+
+Ugh, another crash in incremental_integrator.py:
+/var/log/BurritoBook/researcher-1324656723941
+
+Can't seem to reproduce, though!!!
+
+Traceback (most recent call last):
+  File "/home/researcher/BurritoBook/incremental_integrator.py", line 728, in <module>
+    do_incremental_index()
+  File "/home/researcher/BurritoBook/incremental_integrator.py", line 628, in do_incremental_index
+    incremental_index_gui_trace_logs()
+  File "/home/researcher/BurritoBook/incremental_integrator.py", line 529, in incremental_index_gui_trace_logs
+    (desktop_state_timestamp, desktop_state) = get_gui_state_at_time(event_timestamp)
+  File "/home/researcher/BurritoBook/incremental_integrator.py", line 454, in get_gui_state_at_time
+    assert prev_epoch_final_gui_state[0] <= target_time
+AssertionError
+GOODBYE incremental_integrator.py: in_critical_section = True , time: 1324658589267
+
+
+Traceback (most recent call last):
+  File "/home/researcher/BurritoBook/incremental_integrator.py", line 728, in <module>
+    do_incremental_index()
+  File "/home/researcher/BurritoBook/incremental_integrator.py", line 628, in do_incremental_index
+    incremental_index_gui_trace_logs()
+  File "/home/researcher/BurritoBook/incremental_integrator.py", line 475, in incremental_index_gui_trace_logs
+    assert prev_epoch_timestamp <= timestamp < cur_epoch_timestamp # sanity check!
+AssertionError
+
+
+Hmmm, copy/paste event handling could be improved!
+
+python incremental_integrator.py /var/log/BurritoBook/researcher-1324587094399 -s researcher-1324587094399 -o
+
+AssertionError when processing copy/paste event: {'event_type': 'paste', 'timestamp': 1324610682687, 'y': 488, 'copy_time_ms': 1324610680997, 'x': 375, 'contents': '#file-aed8455b9b'}
+AssertionError when processing copy/paste event: {'event_type': 'paste', 'timestamp': 1324611378069, 'y': 101, 'copy_time_ms': 1324611374688, 'x': 373, 'contents': 'cd /home/researcher/Desktop/elaine-frontline'}
+
+
+Look into taking more advantage of Xpad content log in Burrito applications
+
+- Take Chrome/Firefox URL-grabbing code out of GUItracer.py and put it in a separate "module"
+
+The PyGTK DrawingArea widget might be useful for implementing a sketchbook app in the future:
+http://www.pygtk.org/pygtk2tutorial/ch-DrawingArea.html
+
+Crap, sometimes SystemTap timestamps are SLIGHTLY out of order, but not by too much, though
+
+Sometimes the at-spi service crashes, and you need to restart your session.
+  - Error msg: /usr/libexec/at-spi-registryd (crashed with a signal 6 SIGABRT)
+  - If you open too many terminals in a row, the at-spi service crashes!!!  Just try to open a BUNCH of terminals at once!!!
+  - Ha, Accerciser also flips the heck out when you open a bunch of terminal windows at once too!
+  - Sometimes when GIMP closes, the at-spi service also crashes
+  - at-spi service sometimes crashes when you close the BurritoFeed GUI too
+  - if you click the "X" button on the GUI window upper-right corner to close, then at-spi almost ALWAYS crashes!!!
+
