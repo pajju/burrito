@@ -295,38 +295,6 @@ version diffs:
   sudo yum install meld
 
 
-=== Installing drivers for the Wacom Bamboo tablet (FAILED!) ===
-
-If I click on "Settings" for the Fedora 14 VM in VirtualBox, the
-following message pops up:
-
-  Failed to access the USB subsystem.  VirtualBox is not currently
-  allowed to access USB devices. You can change this by adding your user
-  to the 'vboxusers' group. Please see the user manual for a more
-  detailed explanation.
-
-So on my REAL PHYSICAL machine, run:
-
-sudo usermod -a -G vboxusers pgbovine
-
-then restart the machine.  Now VirtualBox should be able to access my
-USB devices.
-
-In VirtualBox, if you select "Devices -> USB Devices -> Wacom ...", then
-running 'lsusb' will show the Wacom device as being connected!
-
-
-However, I have FAILED FAILED FAILED to get my Wacom Bamboo tablet
-working in Fedora 14.  The instructions above are useful for getting
-a VM within VirtualBox to recognize the Wacom device, but I can't
-actually get it working as a tablet :( :( :(
-
-I'm just gonna "fake" the Wacom tablet using a mouse for now.
-
-(Ubuntu 11.10 apparently has support for Wacom tablets, but I still
-can't get it to work within the VM.)
-
-
 === Other installed applications ===
 
 Install gnome-paint, a simple bare-bones app for sketching doodles:
