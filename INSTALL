@@ -1,0 +1,95 @@
+Example installation of Burrito on Fedora 14 (32-bit) within VirtualBox
+2012-01-26
+
+1. Download Fedora 14 32-bit ISO
+
+http://mirror.seas.harvard.edu/fedora/linux/releases/14/Live/i686/Fedora-14-i686-Live-Desktop.iso
+
+
+2. Do a normal installation of Fedora 14 in VirtualBox (v4.1.4 r74291)
+
+Set up a new VM with 2GB of RAM, 40GB hard drive, VDI dynamically-sized file format
+
+- root password: passwd
+- user: researcher
+  password: passwd
+
+When installing, do custom hard disk partitioning to shrink the
+'lv_root' LVM logical volume (pseudo-partition) and create a new
+'lv_home' LVM logical volume mounted in '/home'.
+
+(There's no option to format lv_home as NILFS, so format it as ext4 for
+now ... we'll reformat it later.)
+
+Finish installation, eject the Fedora 14 LiveCD ISO image, and reboot.
+
+
+3. Initial setup:
+
+Do 'su' and then 'visudo' to add user 'researcher' to sudoers
+
+Disable stupid pesky SELinux permanently by editing '/etc/selinux/config' and setting:
+
+  SELINUX=disabled
+
+
+4. Reformatting /home as NILFS
+
+Backup /home/researcher before reformatting /home into NILFS
+
+  sudo mkdir /home-backup
+  sudo rsync -avh /home/researcher /home-backup/
+
+Install nilfs tools before attempting anything else:
+
+  sudo yum install nilfs-utils
+
+
+Insert the Fedora 14 LiveCD into the VirtualBox virtual CD drive and
+then reboot to start a "Live System User" session from the CD-ROM.
+
+  - Using the LiveCD session makes it possible to run commands to muck
+    with filesystem-related stuff since the filesystems aren't mounted
+
+Do 'su' in the terminal to change to the root user (no password needed!)
+
+Install nilfs tools for LiveCD session:
+
+  yum install nilfs-utils
+
+Format the lv_home logical volume as NILFS:
+
+  mkfs.nilfs2 /dev/vg_burritofedora/lv_home
+
+Now we need to edit /etc/fstab, but before we can do so, we need to
+mount the root partition:
+
+  mkdir root
+  mount /dev/mapper/vg_burritofedora-lv_root root/
+
+Now edit /etc/fstab by accessing it through the new root mount:
+
+  vi root/etc/fstab
+
+Edit this line in /etc/fstab to specify that lv_home is actually NILFS
+(remember the 'nogc' option to disable the garbage collector):
+
+  /dev/mapper/vg_burritofedora-lv_home /home nilfs2    rw,nogc        0 0
+
+Now remove the LiveCD ISO image and reboot.
+
+Try to log in as 'researcher', and you'll see a bunch of errors since
+there's no longer a /home/researcher directory!  Get past all of those
+errors, open a terminal, 'su' to become root, and move the backup
+researcher/ directory back into /home:
+
+  su
+  mv /home-backup/researcher /home/
+
+Now reboot again, and all should be well :)
+
+/home/researcher should now be a NILFS partition with NO garbage
+collector.  Run 'mount' to verify.
+
+[... to be continued ...]
+
