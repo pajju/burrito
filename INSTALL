@@ -150,5 +150,22 @@ Test to see if SystemTap works by running this command:
 If it's working, then you should see a bunch of open() system calls
 being printed to the terminal when you launch applications.
 
-[... to be continued ...]
 
+7. Create burrito log directory
+
+Create a /var/log/burrito directory to store all of the log and database
+output.  Make sure that the user 'researcher' has write permissions for
+that directory, so that I don't have to be root to write into it.
+
+  sudo mkdir /var/log/burrito
+  sudo chown researcher /var/log/burrito
+  sudo chgrp researcher /var/log/burrito
+
+Note that this directory is *not* under NILFS, so that our log files
+don't get versioned.  This is a GOOD thing, since the log files already
+have timestamps, so they don't need additional versioning.
+
+
+8. Install git and check out the burrito git repository
+
+[... to be continued ...]
