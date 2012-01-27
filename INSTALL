@@ -8,18 +8,19 @@ http://mirror.seas.harvard.edu/fedora/linux/releases/14/Live/i686/Fedora-14-i686
 
 2. Do a normal installation of Fedora 14 in VirtualBox (v4.1.4 r74291)
 
-Set up a new VM with 2GB of RAM, 40GB hard drive, VDI dynamically-sized file format
+Set up a new VM named "Burrito (Fedora 14)" with 2GB of RAM, 40GB hard
+drive (VDI dynamically-sized format)
 
 - root password: passwd
 - user: researcher
   password: passwd
 
-When installing, do custom hard disk partitioning to shrink the
-'lv_root' LVM logical volume (pseudo-partition) and create a new
-'lv_home' LVM logical volume mounted in '/home'.
+During installation, do custom hard disk partitioning to shrink the
+'lv_root' LVM logical volume (pseudo-partition) to 10 GB and create a new
+'lv_home' LVM logical volume mounted in '/home' (~26GB).
 
-(There's no option to format lv_home as NILFS, so format it as ext4 for
-now ... we'll reformat it later.)
+  (Since there is no option to format 'lv_home' as NILFS, just format it
+  as ext4 for now ... we'll reformat later.)
 
 Finish installation, eject the Fedora 14 LiveCD ISO image, and reboot.
 
@@ -90,6 +91,64 @@ Now reboot again, and all should be well :)
 
 /home/researcher should now be a NILFS partition with NO garbage
 collector.  Run 'mount' to verify.
+
+
+5. Install AT-SPI and pyatspi
+
+Enable assistive technologies so that pyatspi works.  Select from the
+top menu:
+
+  System -> Preferences -> Assistive Technologies
+  Check the "Enable assistive technologies" checkbox
+  Log out and log back in
+
+Install pyatspi:
+
+  sudo yum install pyatspi
+
+Now test to see whether it works by running the following Python code:
+
+  import pyatspi
+  reg = pyatspi.Registry()
+  desktop = reg.getDesktop(0)
+  for app in desktop:
+    print app
+
+If pyatspi works, then you should see a list of opened GUI applications.
+
+
+6. Install SystemTap
+
+  sudo yum install systemtap systemtap-runtime
+
+Now install kernel debug symbols to get it to cooperate with SystemTap.
+
+Run "uname -r" to find the exact kernel version we're using:
+    2.6.35.6-45.fc14.i686
+
+And then use that exact string in:
+
+  sudo yum install kernel-devel-2.6.35.6-45.fc14.i686
+  sudo debuginfo-install kernel-2.6.35.6-45.fc14.i686
+
+(the latter is ~1.2 GB, so it might take a while to download)
+
+
+Add user 'researcher' to groups 'stapdev' and 'stapusr' so that I can
+run SystemTap as non-root:
+
+  sudo usermod -a -G stapdev researcher
+  sudo usermod -a -G stapusr researcher
+
+
+Log out and then log back in.
+
+Test to see if SystemTap works by running this command:
+
+  stap -e 'probe syscall.open { log(execname() . ": " . filename) }'
+
+If it's working, then you should see a bunch of open() system calls
+being printed to the terminal when you launch applications.
 
 [... to be continued ...]
 
