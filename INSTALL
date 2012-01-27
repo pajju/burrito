@@ -197,8 +197,9 @@ Download a 32-bit MongoDB Linux binary from here:
 Unzip it in $HOME.  All the binaries are self-contained, so just add the
 mongodb bin/ directory to your $PATH, and you're all set!
 
-
+Create the database directory:
   mkdir /var/log/burrito/MongoDB
+
 
 Add the following command to the GNOME Startup Applications panel so
 that MongoDB always starts when you log in.
@@ -212,28 +213,28 @@ Select from the top menu:
 [The --quiet option is important, or else the mongodb.log file grows HUGE!]
 [See: http://www.mongodb.org/display/DOCS/Starting+and+Stopping+Mongo]
 
+Log out and log back in, then type 'mongo' to connect to a local
+database.  If you enter the MongoDB console, then this means that the
+mongod daemon is running fine!
 
-Install Python bindings for MongoDB: http://api.mongodb.org/python/current/
+
+Install Python bindings for MongoDB (pymongo)
+  http://api.mongodb.org/python/current/
+
 
 First you need to install the pip package manager for Python:
   sudo yum install python-pip
 
-Now install PyMongo using pip:
-  sudo pip-python install pymongo
-
-However, we now see a warning that the native extension modules couldn't
-be installed, so we gotta install Python headers:
+and also Python headers since pymongo needs to compile some native
+extension modules:
   sudo yum install python-devel
 
-Now run this command to re-install PyMongo, and you should see a bunch
-of calls to gcc to compile the native extension modules:
-  sudo pip-python install --upgrade pymongo
-
-So really, if you do it right, the three necessary steps are:
-
-  sudo yum install python-pip
-  sudo yum install python-devel
+Finally install PyMongo using pip:
   sudo pip-python install pymongo
+
+To test if it works, start up Python and run:
+  import pymongo
+  pymongo.Connection()
 
 
 9. Install git and check out the burrito git repository

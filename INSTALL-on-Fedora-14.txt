@@ -196,15 +196,6 @@ don't get versioned.  This is a GOOD thing, since the log files already
 have timestamps, so they don't need additional versioning.
 
 
-=== Install xpad sticky notes app ===
-
-sudo yum install xpad
-
-Now add 'xpad' to your GNOME Startup Applications panel (System ->
-Preferences -> Startup Applications), so that it always runs on
-start-up.
-
-
 === Install MongoDB ===
 
 We will use MongoDB as our master database.
@@ -286,12 +277,6 @@ TYPING A PASSWORD!  Note that those commands still must be run as
 'sudo', but no password is required :)
 
 
-Installed the 'meld' graphical diff tool to facilitate visualizing file
-version diffs:
-
-  sudo yum install meld
-
-
 === Other installed applications ===
 
 Install gnome-paint, a simple bare-bones app for sketching doodles:
@@ -310,4 +295,17 @@ GNOME Audio Recorder Applet (for recording audio):
 
 Then right click on the top GNOME panel, select "Add to Panel ...", then
 Audio Recorder Applet
+
+
+Installed the 'meld' graphical diff tool to facilitate visualizing file
+version diffs:
+  sudo yum install meld
+
+
+Install xpad sticky notes app
+  sudo yum install xpad
+
+Now add 'xpad' to your GNOME Startup Applications panel (System ->
+Preferences -> Startup Applications), so that it always runs on
+start-up.
 
