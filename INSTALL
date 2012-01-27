@@ -93,6 +93,25 @@ Now reboot again, and all should be well :)
 collector.  Run 'mount' to verify.
 
 
+Finally, we want the user 'researcher' to be able to mount/unmount NILFS
+snapshots without needing to type in a password.  To do so, add these
+lines to /etc/sudoers by editing it using "sudo visudo":
+
+  researcher      ALL=(ALL)       ALL
+  researcher      ALL=NOPASSWD: /bin/mount
+  researcher      ALL=NOPASSWD: /bin/umount
+  researcher      ALL=NOPASSWD: /sbin/mount.nilfs2
+  researcher      ALL=NOPASSWD: /sbin/umount.nilfs2
+  researcher      ALL=NOPASSWD: /usr/bin/chcp
+  researcher      ALL=NOPASSWD: /usr/bin/mkcp
+  researcher      ALL=NOPASSWD: /usr/bin/rmcp
+
+The first line gives user 'researcher' full sudo access.  All subsequent
+lines say that 'researcher' can run those commands as 'sudo' WITHOUT
+TYPING A PASSWORD!  Note that those commands still must be run as
+'sudo', but no password is required :)
+
+
 5. Install AT-SPI and pyatspi
 
 Enable assistive technologies so that pyatspi works.  Select from the
@@ -166,6 +185,61 @@ don't get versioned.  This is a GOOD thing, since the log files already
 have timestamps, so they don't need additional versioning.
 
 
-8. Install git and check out the burrito git repository
+8. Install MongoDB and PyMongo
+
+Download a 32-bit MongoDB Linux binary from here:
+  http://www.mongodb.org/downloads
+
+[sadly, 32-bit MongoDB is only limited to storing ~2GB of data, so use a
+64-bit machine if you need more storage!]
+
+
+Unzip it in $HOME.  All the binaries are self-contained, so just add the
+mongodb bin/ directory to your $PATH, and you're all set!
+
+
+  mkdir /var/log/burrito/MongoDB
+
+Add the following command to the GNOME Startup Applications panel so
+that MongoDB always starts when you log in.
+
+Select from the top menu:
+  System -> Preferences -> Startup Applications
+  Add a new entry for MongoDB with the following command:
+
+    mongod --fork --quiet --dbpath /var/log/burrito/MongoDB --logpath /var/log/burrito/MongoDB/mongodb.log --logappend
+
+[The --quiet option is important, or else the mongodb.log file grows HUGE!]
+[See: http://www.mongodb.org/display/DOCS/Starting+and+Stopping+Mongo]
+
+
+Install Python bindings for MongoDB: http://api.mongodb.org/python/current/
+
+First you need to install the pip package manager for Python:
+  sudo yum install python-pip
+
+Now install PyMongo using pip:
+  sudo pip-python install pymongo
+
+However, we now see a warning that the native extension modules couldn't
+be installed, so we gotta install Python headers:
+  sudo yum install python-devel
+
+Now run this command to re-install PyMongo, and you should see a bunch
+of calls to gcc to compile the native extension modules:
+  sudo pip-python install --upgrade pymongo
+
+So really, if you do it right, the three necessary steps are:
+
+  sudo yum install python-pip
+  sudo yum install python-devel
+  sudo pip-python install pymongo
+
+
+9. Install git and check out the burrito git repository
+
+  sudo yum install git-core
+  git clone git://github.com/pgbovine/burrito.git
 
 [... to be continued ...]
+

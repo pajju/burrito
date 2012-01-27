@@ -285,9 +285,6 @@ lines say that 'researcher' can run those commands as 'sudo' WITHOUT
 TYPING A PASSWORD!  Note that those commands still must be run as
 'sudo', but no password is required :)
 
-[TODO: do we need to also add NOPASSWD for regular 'mount'/'umount'?
-double-check this]
-
 
 Installed the 'meld' graphical diff tool to facilitate visualizing file
 version diffs:
