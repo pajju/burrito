@@ -1,5 +1,5 @@
 # To use, add the following line in ~/.bashrc:
-# source /home/researcher/BurritoBook/BASHlogger/bash_burrito.sh
+# source /home/researcher/burrito/BASHlogger/bash_burrito.sh
 
 # Trick to run a Python hook BEFORE executing the bash command.
 # Source: http://www.davidpashley.com/articles/xterm-titles-with-bash.html
@@ -12,7 +12,7 @@
 # Also don't execute the Python logger for 'printf' commands, since bash
 # calls printf after *every* command to pretty-print the new prompt,
 # so those calls are useless to track!
-trap 'if [[ ${BASH_COMMAND%% *} != "printf" ]]; then python /home/researcher/BurritoBook/BASHlogger/bash_burrito_to_json.py "$BASHPID" "$PWD" $BASH_COMMAND; fi' DEBUG
+trap 'if [[ ${BASH_COMMAND%% *} != "printf" ]]; then python /home/researcher/burrito/BASHlogger/bash_burrito_to_json.py "$BASHPID" "$PWD" $BASH_COMMAND; fi' DEBUG
 
 
 # Note that setting $PROMPT_COMMAND like they do here ...

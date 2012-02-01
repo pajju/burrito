@@ -54,7 +54,7 @@ def poll_for_xpad_change():
 
 def initialize(reg):
   global outf
-  outf = open('/var/log/BurritoBook/current-session/xpad-notes.log', 'w')
+  outf = open('/var/log/burrito/current-session/xpad-notes.log', 'w')
 
   save_xpad_buffers(get_ms_since_epoch()) # do a save of the initial start-up state
   reg.registerEventListener(xpad_text_changed, 'object:text-changed')

@@ -5,7 +5,7 @@
 "
 " To include this file, add the following line to the end of your .vimrc:
 "
-" so /home/researcher/BurritoBook/VIMlogger/vim-logger.vim
+" so /home/researcher/burrito/VIMlogger/vim-logger.vim
 
 " vmap means only activate this command in visual mode
 vmap m :python log_bookmark()<CR>
@@ -19,7 +19,7 @@ python << EOF
 
 import os, vim, time, json
 
-LOGFILE = '/var/log/BurritoBook/current-session/vim-trace.log'
+LOGFILE = '/var/log/burrito/current-session/vim-trace.log'
 
 def get_ms_since_epoch():
   milliseconds_since_epoch = int(time.time() * 1000)

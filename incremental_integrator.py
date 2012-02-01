@@ -1,4 +1,4 @@
-# Integrate all BurritoBook data streams into a centralized MongoDB database
+# Integrate all burrito data streams into a centralized MongoDB database
 # Created: 2011-11-25
 
 # This process is meant to be run continuously in the background, doing
@@ -45,14 +45,14 @@ burrito_db.apps.chrome
 burrito_db.apps.evince
 burrito_db.apps.pidgin
   etc. etc. etc.
-  - custom logs for individual apps that plug into BurritoBook
+  - custom logs for individual apps that plug into burrito
   - all logs are indexed by the 'timestamp' field by default (i.e.,
     convert it to a Python datetime and set it as a unique '_id' field
     for MongoDB)
 
 burrito_db.session_status
   - _id:               unique session tag (e.g., sub-directory name within
-                       /var/log/BurritoBook)
+                       /var/log/burrito)
   - last_updated_time: timestamp of last update to this session
 
 '''
@@ -665,7 +665,7 @@ if __name__ == "__main__":
   assert os.path.isdir(logdir)
 
   # Unique tag name for this session.  Usually set this to the
-  # sub-directory name of this session within /var/log/BurritoBook/
+  # sub-directory name of this session within /var/log/burrito
   #
   # This tag comes in handy both for discovering the origin of some
   # document in the database and also for bulk-clearing all the documents

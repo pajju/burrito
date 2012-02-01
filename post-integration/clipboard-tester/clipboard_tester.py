@@ -1,4 +1,4 @@
-# Test to see if BurritoBook properly records clipboard copy/paste events
+# Test to see if burrito properly records clipboard copy/paste events
 
 from pymongo import Connection, ASCENDING, DESCENDING
 from BurritoUtils import *

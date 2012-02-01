@@ -1381,7 +1381,7 @@ if __name__ == "__main__":
 
   assert cur_session[-1] != '/' # don't have a weird trailing slash!
 
-  SCREENSHOTS_DIR = '/var/log/BurritoBook/%s/' % cur_session
+  SCREENSHOTS_DIR = '/var/log/burrito/%s/' % cur_session
   assert os.path.isdir(SCREENSHOTS_DIR)
 
   # have tooltips pop up fairly quickly

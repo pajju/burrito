@@ -2,7 +2,7 @@
 
 import os, sys, time, json
 
-LOGFILE = '/var/log/BurritoBook/current-session/bash-history.log'
+LOGFILE = '/var/log/burrito/current-session/bash-history.log'
 
 def get_ms_since_epoch():
   milliseconds_since_epoch = int(time.time() * 1000)

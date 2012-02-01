@@ -5,7 +5,7 @@ cur_snapshot = None
 
 significant_snapshots = []
 
-BASE_PATH = '/tmp/test-tmpfs/nilfs-%d/researcher/BurritoBook/GUItracing/GUItracer.py'
+BASE_PATH = '/tmp/test-tmpfs/nilfs-%d/researcher/burrito/GUItracing/GUItracer.py'
 
 for cno in range(4373, 20000):
   try:

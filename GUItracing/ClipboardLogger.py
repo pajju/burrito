@@ -109,7 +109,7 @@ outf = None
 
 def initialize(reg):
   global outf
-  outf = open('/var/log/BurritoBook/current-session/clipboard.log', 'w')
+  outf = open('/var/log/burrito/current-session/clipboard.log', 'w')
 
   # register the middle mouse button click
   # VERY IMPORTANT: register the RELEASE event ('2r') of the middle mouse

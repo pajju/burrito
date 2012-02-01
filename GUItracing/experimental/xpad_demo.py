@@ -40,7 +40,7 @@ def save_xpad_buffers(t):
   # use the most compact separators:
   compactJSON = json.dumps(result, separators=(',',':'))
 
-  outf = open('/var/log/BurritoBook/current-session/xpad-notes.log', 'a') # append!
+  outf = open('/var/log/burrito/current-session/xpad-notes.log', 'a') # append!
   print >> outf, compactJSON
   outf.close()
 

@@ -17,11 +17,11 @@ import ClipboardLogger
 
 
 # Output to a series of log files with the prefix of:
-# /var/log/BurritoBook/current-session/gui.trace and the
+# /var/log/burrito/current-session/gui.trace and the
 # suffix of .0, .1, etc., switching over to a new file whenever
 # MAX_LINES_IN_LOGFILE has been reached
 MAX_LINES_IN_LOGFILE = 10000 # 10000 * ~1K per entry = ~10MB per log file
-OUTFILE_BASE = '/var/log/BurritoBook/current-session/gui.trace'
+OUTFILE_BASE = '/var/log/burrito/current-session/gui.trace'
 num_lines_in_cur_file = 0
 cur_file_index = 0
 cur_fd = open(OUTFILE_BASE + '.' + str(cur_file_index), 'w')

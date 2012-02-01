@@ -1,4 +1,4 @@
-# Top-level BurritoBook start-up script
+# Top-level burrito start-up script
 # Run this at start-up time to run ALL tracer scripts!
 #
 # Go to System -> Preferences -> Startup Applications in the Fedora 14
@@ -12,15 +12,15 @@
 import os, time
 from BurritoUtils import *
 
-LOG_BASEDIR = '/var/log/BurritoBook'
+LOG_BASEDIR = '/var/log/burrito'
 
-PASS_LITE   = '/home/researcher/BurritoBook/SystemTap/pass-lite.stp'
+PASS_LITE   = '/home/researcher/burrito/SystemTap/pass-lite.stp'
 
 GUI_TRACER_BASE = "GUItracer"
-GUI_TRACER  = '/home/researcher/BurritoBook/GUItracing/%s.py' % (GUI_TRACER_BASE,)
+GUI_TRACER  = '/home/researcher/burrito/GUItracing/%s.py' % (GUI_TRACER_BASE,)
 
 INTEGRATOR_BASE = 'incremental_integrator'
-INTEGRATOR  = '/home/researcher/BurritoBook/%s.py' % (INTEGRATOR_BASE,)
+INTEGRATOR  = '/home/researcher/burrito/%s.py' % (INTEGRATOR_BASE,)
 
 
 assert os.path.isdir(LOG_BASEDIR)

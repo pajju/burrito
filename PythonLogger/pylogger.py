@@ -25,7 +25,7 @@ From Fernando Perez:
   have all user inputs always, with timestamps and more.
 '''
 
-LOGFILE = open('/var/log/BurritoBook/current-session/python.log', 'a')
+LOGFILE = open('/var/log/burrito/current-session/python.log', 'a')
 
 
 import os, sys, readline

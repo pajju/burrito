@@ -4,7 +4,7 @@
 # Tested on Fedora 14 with this kernel version: 2.6.35.14-103.fc14.x86_64
 
 # Use this command to create a series of 10MB output files:
-#   stap -o /var/log/BurritoBook/stap.out -S 10 pass-lite.stp
+#   stap -o /var/log/burrito/stap.out -S 10 pass-lite.stp
 
 # Use a double pipe '||' delimiter for fields since that pattern doesn't
 # seem to appear in filenames
