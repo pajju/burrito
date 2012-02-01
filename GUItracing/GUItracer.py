@@ -491,7 +491,7 @@ printDesktopState()   # print the initial desktop state
 
 
 # initialize 'plug-ins'
-XpadTracer.initialize(reg)
+#XpadTracer.initialize(reg)
 ClipboardLogger.initialize(reg)
 
 
@@ -502,7 +502,7 @@ def goodbye():
   cur_fd.close()
   
   # Tear down 'plug-ins'
-  XpadTracer.teardown()
+  #XpadTracer.teardown()
   ClipboardLogger.teardown()
 
 

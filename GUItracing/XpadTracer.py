@@ -1,6 +1,17 @@
 # 'xpad' tracing module for GUItracer.py
 # 2011-11-20
 
+# To track xpad history, first install it and then uncomment the
+# XpadTracer lines in GUItracer.py
+#
+#   Install xpad sticky notes app
+#     sudo yum install xpad
+# 
+#   Now add 'xpad' to your GNOME Startup Applications panel
+#   (System -> Preferences -> Startup Applications), so that it
+#   always runs on start-up.
+
+
 import os, gobject
 from BurritoUtils import *
 
