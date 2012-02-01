@@ -204,7 +204,7 @@ def gen_entries_from_multifile_log(parser_state, max_timestamp):
           entry_timestamp = entry.timestamp
         else:
           entry_timestamp = entry['timestamp']
-        assert type(entry_timestamp) is int
+        assert type(entry_timestamp) in (int, long)
         if entry_timestamp >= max_timestamp:
           print "} max_timestamp reached (file index: %d, line: %d)" % (parser_state['cur_file_index'], parser_state['cur_line'])
           return
@@ -266,7 +266,7 @@ def gen_entries_from_json_log(parser_state, max_timestamp):
       # each entry should either have a dict key named 'timestamp'
 
       entry_timestamp = entry['timestamp']
-      assert type(entry_timestamp) is int
+      assert type(entry_timestamp) in (int, long)
       if entry_timestamp >= max_timestamp:
         print "} max_timestamp reached (line: %d)" % (parser_state['cur_line'],)
         return
@@ -510,7 +510,7 @@ def incremental_index_gui_trace_logs():
       appId    = data['src_app_id']
       frameIdx = data['src_frame_index']
 
-      assert type(t) is int
+      assert type(t) in (int, long)
       assert type(appId) is int
       assert type(frameIdx) is int
 

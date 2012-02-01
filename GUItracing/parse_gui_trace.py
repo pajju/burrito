@@ -13,7 +13,7 @@ def optimize_gui_trace(input_lst):
   if not input_lst: return input_lst
 
   # file format sanity checks:
-  assert type(input_lst[0][0]) is int
+  assert type(input_lst[0][0]) in (int, long)
   assert input_lst[0][1].__class__ is DesktopState
 
   l2 = coalesceAndDedup(input_lst)
