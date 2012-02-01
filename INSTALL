@@ -114,6 +114,11 @@ TYPING A PASSWORD!  Note that those commands still must be run as
 
 5. Install AT-SPI and pyatspi
 
+Update to the latest version of AT-SPI:
+
+  sudo yum install at-spi2-core
+  sudo yum install at-spi2-atk
+
 Enable assistive technologies so that pyatspi works.  Select from the
 top menu:
 
