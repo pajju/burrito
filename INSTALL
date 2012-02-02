@@ -278,9 +278,8 @@ menu so that all tracers can run at start-up!
   System -> Preferences -> Startup Applications
   Add a new entry for "Burrito tracers" with the following command:
 
-  /usr/bin/python /home/researcher/burrito/run_all_tracers.py
+    /home/researcher/burrito/run_all_tracers.py
 
-(Remember to use absolute paths!)
 
 14. Reboot the VM, and hopefully MongoDB and all the tracers will be
 running when you log in next time!

@@ -179,6 +179,12 @@ def gen_entries_from_multifile_log(parser_state, max_timestamp):
   while True:
     filename = parser_state['file_prefix'] + str(parser_state['cur_file_index'])
     fullpath = os.path.join(logdir, filename)
+
+    if not os.path.isfile(fullpath):
+      # PUNT EARLY!
+      print >> sys.stderr, "WARNING: skipping non-existent file '%s'" % (fullpath,)
+      return
+
     f = open(fullpath)
 
     print "  Processing", fullpath, "at line", parser_state['cur_line']
