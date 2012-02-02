@@ -259,7 +259,7 @@ def fetch_webpage_visit_event(gui_trace_elt):
       prettified_title = prettified_title[:(-1 * len(' - Google Chrome'))]
     if prettified_title == 'New Tab':
       return None
-    if active_w.browserURL == '\u200b': # weird EMPTY URL string
+    if active_w.browserURL == u'\u200b': # weird EMPTY URL string in Chrome
       return None
 
     return WebpageVisitEvent(prettified_title, prettified_URL, timestamp)
