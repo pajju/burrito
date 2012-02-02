@@ -318,6 +318,11 @@ Also add this app. to your desktop quick-launch top panel
 
 16. Finally add the Activity Feed to Startup Applications
 
+  System -> Preferences -> Startup Applications
+  Add a new entry for "Burrito Activity Feed" with the following command:
+
+  /usr/bin/python /home/researcher/burrito/ post-integration/burrito-feed/burrito_feed.py
+
 
 [TODO: write up instructions for installing other plugins]
 

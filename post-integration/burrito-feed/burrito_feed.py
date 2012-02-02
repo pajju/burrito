@@ -1377,7 +1377,7 @@ def exit_handler():
 
 
 if __name__ == "__main__":
-  if len(sys.argv):
+  if len(sys.argv) > 1:
     cur_session = sys.argv[1]
   else:
     # if you don't pass in an argument, then use the CONTENTS of
