@@ -1,9 +1,12 @@
+#!/usr/bin/env python
+
 # Top-level burrito start-up script
-# Run this at start-up time to run ALL tracer scripts!
+#
+# Make this script executable and run at start-up time to run ALL tracer scripts!
 #
 # Go to System -> Preferences -> Startup Applications in the Fedora 14
 # GNOME menu.  And create a new entry to execute:
-#   /usr/bin/python <path to this script>
+#   <path to this script>
 
 import os, time
 from BurritoUtils import *
