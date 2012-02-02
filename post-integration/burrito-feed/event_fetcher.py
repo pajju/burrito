@@ -52,7 +52,7 @@ MY_UID = os.getuid()
 
 # ignore certain boring commands, like 'cd', since that simply
 # changes pwd and can lead to a proliferation of boring entries
-IGNORED_BASH_COMMANDS = set(['cd'])
+IGNORED_BASH_COMMANDS = set(['cd', 'echo'])
 
 IGNORED_PROCESSES    = set(['xpad', 'stapio', 'gconfd-2'])
 IGNORE_PATH_PREFIXES = ['/home/researcher/.', '/tmp/', '/var/', 'PIPE-']
