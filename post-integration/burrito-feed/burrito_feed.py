@@ -1377,7 +1377,12 @@ def exit_handler():
 
 
 if __name__ == "__main__":
-  cur_session = sys.argv[1]
+  if len(sys.argv):
+    cur_session = sys.argv[1]
+  else:
+    # if you don't pass in an argument, then use the CONTENTS of
+    # /var/log/burrito/current-session as the session tag
+    cur_session = os.readlink('/var/log/burrito/current-session').strip()
 
   assert cur_session[-1] != '/' # don't have a weird trailing slash!
 

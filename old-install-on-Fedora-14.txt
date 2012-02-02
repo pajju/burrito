@@ -1,7 +1,8 @@
 Installing Fedora 14 VirtualBox on starflow with the tools required for
-this project
-
+the Burrito project
 2011-11-08
+
+[THIS FILE IS DEPRECATED, instead read the INSTALL file]
 
 
 Use ISO from:
