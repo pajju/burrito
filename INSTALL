@@ -242,10 +242,52 @@ To test if it works, start up Python and run:
   pymongo.Connection()
 
 
-9. Install git and check out the burrito git repository
+9. Install Google Chrome web browser from their web site
+and add it to the desktop quick-launch top panel
+
+10. Install git and check out the burrito git repository
 
   sudo yum install git-core
   git clone git://github.com/pgbovine/burrito.git
 
-[... to be continued ...]
+11. Install the Bash plugin by adding this line to ~/.bashrc:
+
+  source /home/researcher/burrito/BASHlogger/bash_burrito.sh
+
+12. Install the Vim plugin by adding the following line to the end of
+your .vimrc:
+
+  so /home/researcher/burrito/VIMlogger/vim-logger.vim
+
+In order for this plugin to work, you need to upgrade your vim to
+support Python by doing:
+
+  sudo yum install vim
+
+Running "vim --version" should now display "+python"
+
+'vi' is still the old version, so alias it to vim to avoid confusion:
+
+  sudo rm /bin/vi
+  sudo ln -s `which vim` /bin/vi
+
+
+13. Now finally add run_all_tracers.py to your start-up applications
+menu so that all tracers can run at start-up!
+
+  System -> Preferences -> Startup Applications
+  Add a new entry for "Burrito tracers" with the following command:
+
+  /usr/bin/python /home/researcher/burrito/run_all_tracers.py
+
+(Remember to use absolute paths!)
+
+14. Reboot the VM, and hopefully MongoDB and all the tracers will be
+running when you log in next time!
+
+15. Now let's install the dependencies required to run the Burrito GUI
+applications such as the Activity Feed and friends!
+
+
+[TODO: write up instructions for installing other plugins]
 

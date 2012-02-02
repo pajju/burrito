@@ -5,12 +5,13 @@
 # GNOME menu.  And create a new entry to execute:
 #   /usr/bin/python <path to this script>
 
-# TODO: maybe pause a bit before running incremental_integrator.py
-# since that relies on the MongoDB database service already being up
-# and running, and sometimes that might start slower than expected.
-
 import os, time
 from BurritoUtils import *
+
+# Pause a bit before running incremental_integrator.py since that relies
+# on the MongoDB database service already being up and running, and
+# sometimes MongoDB might start slower than expected.
+time.sleep(5)
 
 LOG_BASEDIR = '/var/log/burrito'
 
