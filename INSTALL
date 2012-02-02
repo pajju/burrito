@@ -285,8 +285,28 @@ menu so that all tracers can run at start-up!
 14. Reboot the VM, and hopefully MongoDB and all the tracers will be
 running when you log in next time!
 
-15. Now let's install the dependencies required to run the Burrito GUI
-applications such as the Activity Feed and friends!
+15. Now let's install and configure the dependencies required to run the
+Burrito GUI applications such as the Activity Feed and friends!
+
+Create a base dir for NILFS snapshots:
+
+  mkdir /tmp/nilfs-snapshots
+
+Install the meld visual diff tool:
+
+  sudo yum install meld
+
+(Interesting that pygtk already seems to be installed on Fedora 14)
+
+TODO: Set the proper path to the /dev for the NILFS partition
+
+
+Install gnome-paint, a simple bare-bones app for sketching doodles and
+having them appear in your feed:
+
+  sudo yum install gnome-paint
+
+Also add this app. to your desktop quick-launch top panel
 
 
 [TODO: write up instructions for installing other plugins]

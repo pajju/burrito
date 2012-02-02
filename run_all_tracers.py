@@ -11,7 +11,7 @@ from BurritoUtils import *
 # Pause a bit before running incremental_integrator.py since that relies
 # on the MongoDB database service already being up and running, and
 # sometimes MongoDB might start slower than expected.
-time.sleep(5)
+time.sleep(3)
 
 LOG_BASEDIR = '/var/log/burrito'
 
