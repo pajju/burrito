@@ -5,6 +5,11 @@
 # Jiro SEKIBA <jir@unicus.jp>
 
 
+# Change this to the exact name of your LVM home partition:
+NILFS_DEV_NAME = '/dev/vg_burritofedora/lv_home'
+
+
+
 # TODO: instead of using a pickle file, simply use a MongoDB collection
 # to store the lscp cached data ;)
 
@@ -40,6 +45,8 @@ from signal import signal, SIGTERM
 
 NILFS_SNAPSHOT_BASE = '/tmp/nilfs-snapshots'
 assert os.path.isdir(NILFS_SNAPSHOT_BASE)
+
+assert os.path.exists(NILFS_DEV_NAME)
 
 # Note that this cached file might be outdated since the script might
 # have changed some checkpoint ('cp') into a snapshot ('ss'), but that
@@ -127,7 +134,7 @@ class FileVersionManager:
       self.nilfs.chcp(target_checkpoint_num, True)
       prev['ss'] = True
 
-    mount_cmd = 'sudo mount -t nilfs2 -n -o ro,cp=%d /dev/dm-3 %s' % (target_checkpoint_num, mountpoint)
+    mount_cmd = 'sudo mount -t nilfs2 -n -o ro,cp=%d "%s" "%s"' % (target_checkpoint_num, NILFS_DEV_NAME, mountpoint)
     (status, output) = commands.getstatusoutput(mount_cmd)
     if output:
       print output

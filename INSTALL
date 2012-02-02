@@ -298,7 +298,14 @@ Install the meld visual diff tool:
 
 (Interesting that pygtk already seems to be installed on Fedora 14)
 
-TODO: Set the proper path to the /dev for the NILFS partition
+
+Now set the proper /dev path to the NILFS LVM device in:
+
+  burrito/post-integration/burrito-feed/file_version_manager.py
+
+On my VM, it happens to be:
+
+  NILFS_DEV_NAME = '/dev/vg_burritofedora/lv_home'
 
 
 Install gnome-paint, a simple bare-bones app for sketching doodles and
